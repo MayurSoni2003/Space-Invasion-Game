@@ -40,7 +40,7 @@ for i in range(num_of_enemies):
     enemyImg.append(pygame.image.load('enemy.png'))
     enemyX.append(random.randint(0, 736))
     enemyY.append(random.randint(50, 150))
-    enemyX_change.append(4)
+    enemyX_change.append(2)
     enemyY_change.append(40)
 
 # Bullet
@@ -61,7 +61,7 @@ score_value = 0
 font = pygame.font.Font('freesansbold.ttf', 32)
 
 textX = 10
-testY = 10
+textY = 10
 
 # Game Over
 over_font = pygame.font.Font('freesansbold.ttf', 64)
@@ -115,19 +115,20 @@ while running:
         if event.type == pygame.KEYDOWN:
             key_pressed = event.key
             if key_pressed == pygame.K_LEFT or key_pressed == pygame.K_a:
-                playerX_change = -5
+                playerX_change = -4
             if key_pressed == pygame.K_RIGHT or key_pressed == pygame.K_d:
-                playerX_change = 5
+                playerX_change = 4
             if key_pressed == pygame.K_UP or key_pressed == pygame.K_w:
-                playerY_change = -5
+                playerY_change = -4
             if key_pressed == pygame.K_DOWN or key_pressed == pygame.K_s:
-                playerY_change = 5
+                playerY_change = 4
             if key_pressed == pygame.K_SPACE:
                 if bullet_state is "ready":
                     bulletSound = mixer.Sound("laser.wav")
                     bulletSound.play()
-                    # Get the current x cordinate of the spaceship
+                    # Get the current x and y cordinate of the spaceship
                     bulletX = playerX
+                    bulletY = playerY
                     fire_bullet(bulletX, bulletY)
 
         if event.type == pygame.KEYUP:
@@ -145,8 +146,8 @@ while running:
     elif playerX >= 736:
         playerX = 736
     
-    if playerY <= 350:
-        playerY = 350
+    if playerY <= 380:
+        playerY = 380
     elif playerY >= 480:
         playerY = 480
 
@@ -154,7 +155,7 @@ while running:
     for i in range(num_of_enemies):
 
         # Game Over
-        if enemyY[i] > 440:
+        if enemyY[i] > 440 or isCollision(enemyX[i], enemyY[i], playerX, playerY):
             for j in range(num_of_enemies):
                 enemyY[j] = 2000
             game_over_text()
@@ -162,34 +163,35 @@ while running:
 
         enemyX[i] += enemyX_change[i]
         if enemyX[i] <= 0:
-            enemyX_change[i] = 4
+            enemyX_change[i] = 2
             enemyY[i] += enemyY_change[i]
         elif enemyX[i] >= 736:
-            enemyX_change[i] = -4
+            enemyX_change[i] = -2
             enemyY[i] += enemyY_change[i]
 
         # Collision
-        collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
-        if collision:
-            explosionSound = mixer.Sound("explosion.wav")
-            explosionSound.play()
-            bulletY = 480
-            bullet_state = "ready"
-            score_value += 1
-            enemyX[i] = random.randint(0, 736)
-            enemyY[i] = random.randint(50, 150)
+        if bullet_state == "fire":
+            collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
+            if collision:
+                explosionSound = mixer.Sound("explosion.wav")
+                explosionSound.play()
+                bulletY = playerY
+                bullet_state = "ready"
+                score_value += 1
+                enemyX[i] = random.randint(0, 736)
+                enemyY[i] = random.randint(50, 150)
 
         enemy(enemyX[i], enemyY[i], i)
 
     # Bullet Movement
     if bulletY <= 0:
-        bulletY = 480
+        bulletY = playerY
         bullet_state = "ready"
 
-    if bullet_state is "fire":
+    if bullet_state == "fire":
         fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
 
     player(playerX, playerY)
-    show_score(textX, testY)
+    show_score(textX, textY)
     pygame.display.update()
