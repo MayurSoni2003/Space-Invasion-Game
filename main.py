@@ -158,6 +158,7 @@ while running:
         if enemyY[i] > 440 or isCollision(enemyX[i], enemyY[i], playerX, playerY):
             for j in range(num_of_enemies):
                 enemyY[j] = 2000
+                playerY = 2000
             game_over_text()
             break
 
