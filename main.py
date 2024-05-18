@@ -1,6 +1,5 @@
 import math
 import random
-
 import pygame
 from pygame import mixer
 
@@ -27,6 +26,7 @@ playerImg = pygame.image.load('player.png')
 playerX = 370
 playerY = 480
 playerX_change = 0
+playerY_change = 0
 
 # Enemy
 enemyImg = []
@@ -111,13 +111,18 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        # if keystroke is pressed check whether its right or left
+        # if keystroke is pressed check its direction
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
+            key_pressed = event.key
+            if key_pressed == pygame.K_LEFT or key_pressed == pygame.K_a:
                 playerX_change = -5
-            if event.key == pygame.K_RIGHT:
+            if key_pressed == pygame.K_RIGHT or key_pressed == pygame.K_d:
                 playerX_change = 5
-            if event.key == pygame.K_SPACE:
+            if key_pressed == pygame.K_UP or key_pressed == pygame.K_w:
+                playerY_change = -5
+            if key_pressed == pygame.K_DOWN or key_pressed == pygame.K_s:
+                playerY_change = 5
+            if key_pressed == pygame.K_SPACE:
                 if bullet_state is "ready":
                     bulletSound = mixer.Sound("laser.wav")
                     bulletSound.play()
@@ -126,17 +131,24 @@ while running:
                     fire_bullet(bulletX, bulletY)
 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+            key_released = event.key
+            if key_pressed == key_released:
                 playerX_change = 0
+                playerY_change = 0
 
-    # 5 = 5 + -0.1 -> 5 = 5 - 0.1
-    # 5 = 5 + 0.1
 
     playerX += playerX_change
+    playerY += playerY_change
+
     if playerX <= 0:
         playerX = 0
     elif playerX >= 736:
         playerX = 736
+    
+    if playerY <= 350:
+        playerY = 350
+    elif playerY >= 480:
+        playerY = 480
 
     # Enemy Movement
     for i in range(num_of_enemies):
